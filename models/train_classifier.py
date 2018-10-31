@@ -28,6 +28,7 @@ nltk.download('wordnet')
 
 
 def load_data(database_filepath):
+    """takes path to db as input and loads data. Return X, Y and target_names"""
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql('disaster_data', engine)
     X = df.message.values
@@ -46,23 +47,24 @@ def tokenize(text):
     clean_tokens = [PorterStemmer().stem(w) for w in tokens]
 
     return clean_tokens
-    
+
 def build_model():
-    
+    """Builds a model. returns a GridSearchCV object"""
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(RandomForestClassifier(n_estimators=200, min_samples_leaf=2, min_samples_split=2), n_jobs=-1)),  
+        ('clf', MultiOutputClassifier(RandomForestClassifier(n_estimators=200, min_samples_leaf=2, min_samples_split=2), n_jobs=-1)),
         ])
     parameters = {'clf__estimator__max_depth': [20, 50],
                   'clf__estimator__min_samples_leaf': [1, 4],
                   'clf__estimator__min_samples_split': [2, 7],
                   'clf__estimator__n_estimators': [200]}
-    
+
     return GridSearchCV(estimator=pipeline, param_grid=parameters, verbose=10, n_jobs=-1)
-    
-    
+
+
 def evaluate_model(model, X_test, Y_test, category_names):
+    """Takes model, X_test, Y_test and category names as input and evaluates model"""
     y_pred = model.predict(X_test)
     print("Accuracy of the model :", (y_pred == Y_test).mean())
     for i in y_pred:
@@ -71,21 +73,23 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """Takes model and path for saving as input and saves the model"""
     pickle.dump(model, open(model_filepath, 'wb'))
 
 def main():
+    """Main function"""
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-        
+
         print('Building model...')
         model = build_model()
-        
+
         print('Training model...')
         model.fit(X_train, Y_train)
-        
+
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
