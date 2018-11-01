@@ -53,12 +53,14 @@ def build_model():
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(RandomForestClassifier(n_estimators=200, min_samples_leaf=2, min_samples_split=2), n_jobs=-1)),
+        ('clf', MultiOutputClassifier(RandomForestClassifier(), n_jobs=1)),
         ])
     parameters = {'clf__estimator__max_depth': [20, 50],
                   'clf__estimator__min_samples_leaf': [1, 4],
                   'clf__estimator__min_samples_split': [2, 7],
                   'clf__estimator__n_estimators': [200]}
+
+
 
     return GridSearchCV(estimator=pipeline, param_grid=parameters, verbose=10, n_jobs=-1)
 
