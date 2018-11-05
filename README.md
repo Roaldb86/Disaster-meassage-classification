@@ -29,8 +29,8 @@ Run the following commands in the root directory.
 2. Run a ML pipeline to trains and saves a model
  - python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
 
-3
- - Go to http://0.0.0.0:3001/
+3.
+ - Run run.py and go to http://0.0.0.0:3001/
 
 ### Files:
 The project contains a jupyter notebook for the ETL pipeline aswell as on for the ML pipeline.
